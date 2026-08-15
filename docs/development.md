@@ -116,6 +116,23 @@ Apart from the scoped staged-record verification, the hooks intentionally do not
 
 Contributors can opt into the comprehensive local gate set with `pnpm run check:all`. The command is independent of the Git hooks and is not an agent instruction.
 
+### Fork synchronization
+
+Keep `master` aligned with the original `deepseek-ai/deepseek-harness` repository through the `upstream` remote, and make changes on `work`, which tracks the fork's `origin/work` branch. Commit or stash local changes before synchronizing:
+
+```sh
+git switch master
+git fetch upstream
+git merge upstream/master
+git push origin master
+
+git switch work
+git rebase master
+git push --force-with-lease
+```
+
+The final push uses `--force-with-lease` because rebasing rewrites `work`; it refuses to overwrite remote changes that are absent locally.
+
 ### CI gates
 
 The keyless [CI workflow](../.github/workflows/ci.yml) groups independent gates into broad lanes and runs a smaller compatibility signal across supported Node versions. Artifact consumers wait for one build within their lane. The separate real-API workflow runs `pnpm run test:e2e` with its configured worker bound. See [scripts/run-gates.ts](../scripts/run-gates.ts) and the workflow files for the current gate and job inventory.

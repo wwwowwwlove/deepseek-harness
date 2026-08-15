@@ -116,6 +116,23 @@ vendor manifest 守卫检查 `vendor/*/src` 下的改动是否连同对应的 `v
 
 贡献者可以选择运行 `pnpm run check:all`，执行全面的本地门禁集。该命令独立于 Git 钩子，也不是对 agent 的指令。
 
+### Fork 同步
+
+通过 `upstream` 远程让 `master` 与原始 `deepseek-ai/deepseek-harness` 仓库保持一致，并在跟踪 Fork 中 `origin/work` 分支的 `work` 上进行修改。同步前请提交或暂存本地改动：
+
+```sh
+git switch master
+git fetch upstream
+git merge upstream/master
+git push origin master
+
+git switch work
+git rebase master
+git push --force-with-lease
+```
+
+最后一次推送使用 `--force-with-lease`，因为 rebase 会重写 `work`；如果远程存在本地没有的改动，该选项会拒绝覆盖。
+
 ### CI 门禁
 
 keyless [CI 工作流](../.github/workflows/ci.yml) 将独立门禁分组到若干宽粒度 lane，并在受支持的 Node 版本上运行一组较小的兼容性检查。产物消费方在各自 lane 内等待一次 build。单独的真实 API 工作流按其配置的 worker 上限运行 `pnpm run test:e2e`。当前门禁和 job 清单以 [scripts/run-gates.ts](../scripts/run-gates.ts) 和工作流文件为准。
